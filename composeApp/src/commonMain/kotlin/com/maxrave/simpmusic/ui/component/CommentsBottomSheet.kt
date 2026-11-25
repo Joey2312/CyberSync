@@ -70,7 +70,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import com.maxrave.domain.data.model.comments.CommentLikeState
 import com.maxrave.domain.data.model.comments.YouTubeComment
 import com.maxrave.simpmusic.expect.ui.VerticalScrollBar

@@ -1,5 +1,7 @@
 package com.maxrave.simpmusic.extension
 
+import com.maxrave.simpmusic.ui.theme.desktopPanelDark
+import com.maxrave.simpmusic.ui.component.NO_ARTWORK
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FloatSpringSpec
 import androidx.compose.animation.core.LinearEasing
@@ -694,7 +696,8 @@ fun Palette?.toImmersiveBackground(): Color {
 @Composable
 fun rememberPaletteColor(
     palette: Palette?,
-    fallback: Color = Color.Black,
+    // With no artwork there is never a palette: the pages sit on the app's own panel colour instead.
+    fallback: Color = if (NO_ARTWORK) desktopPanelDark else Color.Black,
     pick: (Palette) -> Color = { it.toImmersiveBackground() },
 ): Color {
     var held by rememberSaveable { mutableStateOf<Int?>(null) }

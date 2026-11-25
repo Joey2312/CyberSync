@@ -32,7 +32,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -72,6 +72,10 @@ fun HomeDiscoverSection(
     navController: NavController,
     homeViewModel: HomeViewModel,
 ) {
+    if (HOME_AS_TILES) {
+        HomeTileShelf(data, navController, homeViewModel)
+        return
+    }
     val songs = remember(data.contents) { data.contents.filterNotNull() }
     if (songs.isEmpty()) return
     var sheetTrack by remember { mutableStateOf<Track?>(null) }

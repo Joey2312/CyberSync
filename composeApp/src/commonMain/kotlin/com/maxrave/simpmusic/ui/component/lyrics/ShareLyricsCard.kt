@@ -1,5 +1,6 @@
 package com.maxrave.simpmusic.ui.component.lyrics
 
+import com.maxrave.simpmusic.ui.component.NO_ARTWORK
 import com.maxrave.simpmusic.ui.theme.cyber
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -101,7 +102,7 @@ internal fun ShareLyricsCard(
                 .padding(24.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            if (artwork != null) {
+            if (artwork != null && !NO_ARTWORK) {
                 Image(
                     bitmap = artwork,
                     contentDescription = null,

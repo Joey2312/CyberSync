@@ -829,7 +829,8 @@ class JvmMediaPlayerHandlerImpl(
                         song.title,
                         song.artistName?.joinToString(", ") ?: "",
                         song.albumName ?: "",
-                        song.thumbnails,
+                        // CyberSync shows no artwork, so the Windows media panel gets none either.
+                        null,
                     )
                     updateMacOSNowPlayingInfo(song)
                 }

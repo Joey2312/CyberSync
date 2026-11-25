@@ -46,6 +46,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import simpmusic.composeapp.generated.resources.Res
 import simpmusic.composeapp.generated.resources.music_video
 import simpmusic.composeapp.generated.resources.new_release
@@ -220,29 +221,34 @@ class HomeViewModel(
         }
     }
 
-    private fun loadPickShelves(picks: HomePicks) {
+    private fun loadPickShelves(
+        picks: HomePicks,
+        isRefresh: Boolean = false,
+    ) {
         pickShelvesJob?.cancel()
         pickShelvesReady.value = false
         pickShelvesJob =
             viewModelScope.launch {
-                _pickShelves.value =
+                val labels =
+                    HomePicksLabels(
+                        picks = getString(Res.string.home_shelf_picks),
+                        mix = getString(Res.string.home_shelf_mix),
+                        basedOnPicks = getString(Res.string.home_shelf_based_on_picks),
+                        latest = getString(Res.string.home_shelf_latest),
+                        moreFrom = getString(Res.string.home_shelf_more_from),
+                        similar = getString(Res.string.home_shelf_similar),
+                    )
+                // The picks themselves need no network. They go first and stay first, so shelves that
+                // come late on a slow connection land below them instead of moving the page.
+                if (!isRefresh) _pickShelves.value = buildPickShelves(picks, emptyList(), emptyList(), labels)
+                val shelves =
                     coroutineScope {
                         val pages = picks.artists.map { async { artistRepository.getArtistData(it.id).dataOrNull() } }
                         val radios = picks.songs.map { async { songRepository.getRelatedData(it.id).dataOrNull()?.first.orEmpty() } }
-                        buildPickShelves(
-                            picks,
-                            pages.awaitAll(),
-                            radios.awaitAll(),
-                            HomePicksLabels(
-                                picks = getString(Res.string.home_shelf_picks),
-                                mix = getString(Res.string.home_shelf_mix),
-                                basedOnPicks = getString(Res.string.home_shelf_based_on_picks),
-                                latest = getString(Res.string.home_shelf_latest),
-                                moreFrom = getString(Res.string.home_shelf_more_from),
-                                similar = getString(Res.string.home_shelf_similar),
-                            ),
-                        )
+                        buildPickShelves(picks, pages.awaitAll(), radios.awaitAll(), labels)
                     }
+                // A refresh that reached nothing keeps what is already there.
+                if (!isRefresh || shelves.size > 1) _pickShelves.value = shelves
                 pickShelvesReady.value = true
             }
     }
@@ -250,7 +256,7 @@ class HomeViewModel(
     /** Pull to refresh: YouTube's shelves and the listener's own. */
     fun refresh() {
         viewModelScope.launch {
-            loadPickShelves(dataStoreManager.homePicks.first() ?: HomePicks())
+            loadPickShelves(dataStoreManager.homePicks.first() ?: HomePicks(), isRefresh = true)
             getHomeItemList(params.value)
         }
     }
@@ -354,9 +360,9 @@ class HomeViewModel(
                         Logger.w("Error", "getHomeItemList: ${exploreMoodItem.message}")
                         Logger.w("Error", "getHomeItemList: ${chart.message}")
                     }
-                    // Both kinds of shelf appear together, or the listener's own would land above the
-                    // page already on screen. Every lookup behind them has a time limit.
-                    if (params == null) pickShelvesReady.first { it }
+                    // Both kinds of shelf should appear together, but a slow connection must not keep
+                    // YouTube's waiting: after this the listener's own join the page as they arrive.
+                    if (params == null) withTimeoutOrNull(PICK_SHELVES_WAIT_MS) { pickShelvesReady.first { it } }
                     loading.value = false
                 }
             }
@@ -438,6 +444,8 @@ class HomeViewModel(
     }
 
     companion object {
+        private const val PICK_SHELVES_WAIT_MS = 6_000L
+
         // Home params
         const val HOME_PARAMS_RELAX = "ggM8SgQIBxADSgQIBRABSgQICRABSgQIChABSgQIDRABSgQICBABSgQIBBABSgQIDhABSgQIAxABSgQIBhAB"
         const val HOME_PARAMS_SLEEP = "ggM8SgQIBxABSgQIBRADSgQICRABSgQIChABSgQIDRABSgQICBABSgQIBBABSgQIDhABSgQIAxABSgQIBhAB"

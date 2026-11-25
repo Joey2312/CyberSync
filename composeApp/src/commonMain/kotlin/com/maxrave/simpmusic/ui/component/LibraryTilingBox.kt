@@ -32,7 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -258,7 +258,7 @@ private fun SleeveFan(
     modifier: Modifier = Modifier,
 ) {
     Box(modifier, contentAlignment = Alignment.Center) {
-        if (thumbnails == null) return@Box
+        if (thumbnails == null || NO_ARTWORK) return@Box
         val shape = if (round) CircleShape.cyber() else ArtworkShape
         val covers = thumbnails.take(slots)
         val count = if (covers.isEmpty()) slots else covers.size

@@ -8,21 +8,13 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
-import coil3.ImageLoader
-import coil3.request.ImageRequest
-import coil3.request.SuccessResult
-import coil3.request.allowHardware
-import coil3.toBitmap
 import com.maxrave.simpmusic.MainActivity
 import com.maxrave.simpmusic.R
 import com.maxrave.simpmusic.utils.ComposeResUtils
-import kotlinx.coroutines.runBlocking
 
 object NotificationHandler {
     private const val CHANNEL_ID = "transactions_reminder_channel"
@@ -43,38 +35,6 @@ object NotificationHandler {
                 PendingIntent.FLAG_IMMUTABLE,
             )
 
-        val bitmap =
-            runBlocking {
-                val loader = ImageLoader(context)
-                val request =
-                    ImageRequest
-                        .Builder(context)
-                        .data(
-                            noti.single
-                                .firstOrNull()
-                                ?.thumbnails
-                                ?.lastOrNull()
-                                ?.url
-                                ?: noti.album
-                                    .firstOrNull()
-                                    ?.thumbnails
-                                    ?.lastOrNull()
-                                    ?.url,
-                        ).allowHardware(false) // Disable hardware bitmaps.
-                        .build()
-
-                return@runBlocking when (val result = loader.execute(request)) {
-                    is SuccessResult -> {
-                        result.image.toBitmap()
-                    }
-
-                    else -> {
-                        AppCompatResources
-                            .getDrawable(context, R.drawable.holder)
-                            ?.toBitmap(128, 128)
-                    }
-                }
-            }
         val body =
             if (noti.single.isNotEmpty()) {
                 "${ComposeResUtils.getResString(ComposeResUtils.StringType.NEW_SINGLES)}: ${noti.single.joinToString { it.title }}"
@@ -88,7 +48,6 @@ object NotificationHandler {
                 .setContentTitle(noti.name)
                 .setContentText(body)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setLargeIcon(bitmap)
                 .setContentIntent(pendingIntent) // For launching the MainActivity
                 .setAutoCancel(true) // Remove notification when tapped
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC) // Show on lock screen

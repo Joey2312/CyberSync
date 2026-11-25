@@ -11,6 +11,12 @@ Based on:
 Left out of this repository because no build uses them: the store listing, screenshots, changelogs, GitHub workflows and
 editor configuration of the original project.
 
+## 2.6.3 (25 November 2026)
+
+- No artwork anywhere: covers, portraits, avatars, backdrops, canvases and animated covers are no longer loaded or drawn, in the app, its notifications or its widgets. The sound-reactive bar in Now Playing stays
+- Home shelves are rectangular tiles
+- Home no longer loses the shelves built from the listener's picks on a slow connection
+
 ## 2.6.2 (25 November 2026)
 
 - Home is built from the listener's own top artists and songs, asked for on first launch and editable in Settings

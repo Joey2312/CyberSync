@@ -22,7 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -53,7 +53,7 @@ fun PodcastEpisodeFullWidthItem(
                 .fillMaxWidth(),
         ) {
             Spacer(modifier = Modifier.width(10.dp))
-            Box(modifier = Modifier.size(50.dp)) {
+            if (!NO_ARTWORK) Box(modifier = Modifier.size(50.dp)) {
                 AsyncImage(
                     model =
                         ImageRequest

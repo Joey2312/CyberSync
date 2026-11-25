@@ -1,5 +1,6 @@
 package com.maxrave.simpmusic.ui.component
 
+import com.maxrave.simpmusic.ui.theme.cyberBlock
 import androidx.compose.ui.text.TextStyle
 import com.maxrave.simpmusic.ui.theme.displayFontFamily
 import com.maxrave.simpmusic.ui.theme.monoFontFamily
@@ -79,7 +80,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -152,6 +153,10 @@ fun HomeItem(
     navController: NavController,
     data: HomeItem,
 ) {
+    if (HOME_AS_TILES) {
+        HomeTileShelf(data, navController, homeViewModel)
+        return
+    }
     var bottomSheetShow by remember { mutableStateOf(false) }
 
     val lazyListState = rememberLazyListState()
@@ -346,55 +351,17 @@ fun HomeContentCard(
     // Every card fills its grid cell, as on the "More" page; Home's rows keep the fixed sizes.
     fillMaxWidth: Boolean = false,
 ) {
-    val browseId = temp.browseId
-    val playlistId = temp.playlistId
-    if ((playlistId != null && temp.videoId == null) || (playlistId != null && temp.videoId == "")) {
-        if (playlistId.startsWith("UC")) {
-            HomeItemArtist(onClick = {
-                navController.navigate(
-                    ArtistDestination(
-                        channelId = playlistId,
-                    ),
-                )
-            }, data = temp, fillMaxWidth = fillMaxWidth)
+    val pageId = temp.pageId
+    val open = { temp.open(navController, viewModel) }
+    if (pageId != null) {
+        if (pageId.startsWith("UC")) {
+            HomeItemArtist(onClick = open, data = temp, fillMaxWidth = fillMaxWidth)
         } else {
-            HomeItemContentPlaylist(onClick = {
-                navController.navigate(
-                    PlaylistDestination(
-                        playlistId = playlistId,
-                    ),
-                )
-            }, data = temp, fillMaxWidth = fillMaxWidth, onPlay = temp.hoverPlay(viewModel))
-        }
-    } else if ((browseId != null && temp.videoId == null) || (browseId != null && temp.videoId == "")) {
-        if (browseId.startsWith("UC")) {
-            HomeItemArtist(onClick = {
-                navController.navigate(
-                    ArtistDestination(
-                        channelId = browseId,
-                    ),
-                )
-            }, data = temp, fillMaxWidth = fillMaxWidth)
-        } else if (browseId.startsWith("MPSP")) {
-            HomeItemContentPlaylist(onClick = {
-                navController.navigate(
-                    PodcastDestination(
-                        podcastId = browseId,
-                    ),
-                )
-            }, data = temp, fillMaxWidth = fillMaxWidth, onPlay = temp.hoverPlay(viewModel))
-        } else {
-            HomeItemContentPlaylist(onClick = {
-                navController.navigate(
-                    AlbumDestination(
-                        browseId = browseId,
-                    ),
-                )
-            }, data = temp, fillMaxWidth = fillMaxWidth, onPlay = temp.hoverPlay(viewModel))
+            HomeItemContentPlaylist(onClick = open, data = temp, fillMaxWidth = fillMaxWidth, onPlay = temp.hoverPlay(viewModel))
         }
     } else if (temp.thumbnails.firstOrNull()?.width != temp.thumbnails.firstOrNull()?.height) {
         HomeItemVideo(
-            onClick = { temp.playRadio(viewModel) },
+            onClick = open,
             onLongClick = { onLongClick(temp) },
             data = temp,
             fillMaxWidth = fillMaxWidth,
@@ -402,12 +369,31 @@ fun HomeContentCard(
         )
     } else {
         HomeItemSong(
-            onClick = { temp.playRadio(viewModel) },
+            onClick = open,
             onLongClick = { onLongClick(temp) },
             data = temp,
             fillMaxWidth = fillMaxWidth,
             onPlay = temp.hoverPlay(viewModel),
         )
+    }
+}
+
+/** The page this card opens, or null when it is a song or video and plays instead. */
+private val Content.pageId: String?
+    get() = if (videoId.isNullOrEmpty()) playlistId ?: browseId else null
+
+/** What a tap on this card does: a song or video starts its radio, anything else opens its page. */
+internal fun Content.open(
+    navController: NavController,
+    viewModel: BaseViewModel,
+) {
+    val id = pageId
+    when {
+        id == null -> playRadio(viewModel)
+        id.startsWith("UC") -> navController.navigate(ArtistDestination(channelId = id))
+        playlistId != null -> navController.navigate(PlaylistDestination(playlistId = id))
+        id.startsWith("MPSP") -> navController.navigate(PodcastDestination(podcastId = id))
+        else -> navController.navigate(AlbumDestination(browseId = id))
     }
 }
 
@@ -417,7 +403,7 @@ fun HomeContentCard(
  * from Home; a playlist card that came without one still plays by its id. Artists and podcasts,
  * which have nothing to play, get no button.
  */
-private fun Content.hoverPlay(viewModel: BaseViewModel): (() -> Unit)? {
+internal fun Content.hoverPlay(viewModel: BaseViewModel): (() -> Unit)? {
     if (!videoId.isNullOrEmpty()) return { playRadio(viewModel) }
     val endpoint =
         playEndpoint
@@ -606,6 +592,7 @@ fun HomeItemContentPlaylist(
             .wrapContentSize()
             .focusable(true)
             .clip(RoundedCornerShape(8.dp).cyber())
+            .then(if (NO_ARTWORK) Modifier.padding(4.dp).cyberBlock() else Modifier)
             .clickable {
                 onClick()
             },
@@ -619,7 +606,7 @@ fun HomeItemContentPlaylist(
                     // text engine counts Poppins' line gap (Skia on Desktop does), 65.8dp when not.
                     // A cell-filling card has no such row to match and its artwork is narrower than
                     // thumbSize, so the floor would only add empty space under every tile.
-                    .then(if (fillMaxWidth) Modifier else Modifier.heightIn(min = thumbSize + if (compactCards) cardTextBlockFloor() else 70.dp)),
+                    .then(if (fillMaxWidth || NO_ARTWORK) Modifier else Modifier.heightIn(min = thumbSize + if (compactCards) cardTextBlockFloor() else 70.dp)),
         ) {
             val thumb =
                 when (data) {
@@ -644,7 +631,7 @@ fun HomeItemContentPlaylist(
                     is MonthlyRecapItem -> null
                     else -> null
                 }
-            Box {
+            if (!NO_ARTWORK) Box {
                 AsyncImage(
                     model =
                         ImageRequest
@@ -993,6 +980,7 @@ fun HomeItemSong(
                 .fillMaxSize()
                 .focusable(true)
                 .clip(RoundedCornerShape(8.dp).cyber())
+                .then(if (NO_ARTWORK) Modifier.padding(4.dp).cyberBlock() else Modifier)
                 .combinedClickable(
                     onClick = onClick,
                     onLongClick = onLongClick,
@@ -1002,7 +990,7 @@ fun HomeItemSong(
             modifier =
                 Modifier
                     .padding(start = cardSidePadding, top = 10.dp, end = cardSidePadding, bottom = 6.dp)
-                    .heightIn(min = if (compactCards) 160.dp + cardTextBlockFloor() else 230.dp),
+                    .heightIn(min = if (NO_ARTWORK) 0.dp else if (compactCards) 160.dp + cardTextBlockFloor() else 230.dp),
         ) {
             val thumb =
                 data.thumbnails.lastOrNull()?.url?.let {
@@ -1012,7 +1000,7 @@ fun HomeItemSong(
                         it
                     }
                 }
-            Box(Modifier.align(Alignment.CenterHorizontally)) {
+            if (!NO_ARTWORK) Box(Modifier.align(Alignment.CenterHorizontally)) {
                 AsyncImage(
                     model =
                         ImageRequest
@@ -1104,6 +1092,7 @@ fun HomeItemVideo(
             .fillMaxSize()
             .focusable(true)
             .clip(RoundedCornerShape(8.dp).cyber())
+            .then(if (NO_ARTWORK) Modifier.padding(4.dp).cyberBlock() else Modifier)
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongClick,
@@ -1113,10 +1102,10 @@ fun HomeItemVideo(
             modifier =
                 Modifier
                     .padding(start = cardSidePadding, top = 10.dp, end = cardSidePadding, bottom = 6.dp)
-                    .heightIn(min = if (compactCards) 160.dp + cardTextBlockFloor() else 230.dp),
+                    .heightIn(min = if (NO_ARTWORK) 0.dp else if (compactCards) 160.dp + cardTextBlockFloor() else 230.dp),
         ) {
             val thumb = data.thumbnails.lastOrNull()?.url
-            Box(Modifier.align(Alignment.CenterHorizontally)) {
+            if (!NO_ARTWORK) Box(Modifier.align(Alignment.CenterHorizontally)) {
                 AsyncImage(
                     model =
                         ImageRequest
@@ -1223,6 +1212,7 @@ fun HomeItemArtist(
             .fillMaxSize()
             .focusable(true)
             .clip(RoundedCornerShape(8.dp).cyber())
+            .then(if (NO_ARTWORK) Modifier.padding(4.dp).cyberBlock() else Modifier)
             .clickable {
                 onClick()
             },
@@ -1231,7 +1221,7 @@ fun HomeItemArtist(
             modifier =
                 Modifier
                     .padding(start = cardSidePadding, top = 10.dp, end = cardSidePadding, bottom = 6.dp)
-                    .heightIn(min = if (compactCards) 160.dp + cardTextBlockFloor() else 230.dp),
+                    .heightIn(min = if (NO_ARTWORK) 0.dp else if (compactCards) 160.dp + cardTextBlockFloor() else 230.dp),
         ) {
             val thumb = data.thumbnails.lastOrNull()?.url
             AsyncImage(
@@ -1428,6 +1418,15 @@ fun ItemVideoChart(
     }
 }
 
+/** YouTube sends the bare number or the finished text, depending on the response. */
+@Composable
+internal fun ItemArtist.subscribersText(): String =
+    if (subscribers.contains(stringResource(Res.string.subscribers).replace("%1\$s ", ""))) {
+        subscribers
+    } else {
+        stringResource(Res.string.subscribers, subscribers)
+    }
+
 @Composable
 fun ItemArtistChart(
     onClick: () -> Unit,
@@ -1501,17 +1500,7 @@ fun ItemArtistChart(
                 )
                 Text(
                     text =
-                        subtitle ?: if (data.subscribers.contains(
-                                stringResource(Res.string.subscribers).replace("%1\$s ", ""),
-                            )
-                        ) {
-                            data.subscribers
-                        } else {
-                            stringResource(
-                                Res.string.subscribers,
-                                data.subscribers,
-                            )
-                        },
+                        subtitle ?: data.subscribersText(),
                     style = typo().bodySmall,
                     minLines = 1,
                     maxLines = 1,

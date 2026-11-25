@@ -1,5 +1,6 @@
 package com.maxrave.simpmusic.viewModel
 
+import com.maxrave.simpmusic.ui.component.NO_ARTWORK
 import com.maxrave.simpmusic.utils.homePicks
 import com.maxrave.simpmusic.utils.HomePicks
 import androidx.compose.ui.graphics.ImageBitmap
@@ -682,6 +683,7 @@ class SharedViewModel(
         videoId: String,
         duration: Int,
     ) {
+        if (NO_ARTWORK) return
         Logger.w(tag, "Start getCanvas: $videoId $duration")
 //        canvasJob?.cancel()
         viewModelScope.launch {

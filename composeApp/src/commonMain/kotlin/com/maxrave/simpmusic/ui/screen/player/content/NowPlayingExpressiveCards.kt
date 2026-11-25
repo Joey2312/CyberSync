@@ -1,5 +1,6 @@
 package com.maxrave.simpmusic.ui.screen.player.content
 
+import com.maxrave.simpmusic.ui.component.NO_ARTWORK
 import com.maxrave.simpmusic.ui.theme.cyber
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -73,7 +74,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -324,6 +325,7 @@ internal fun ExpressiveArtworkCardPage(
                         mutableStateOf(state.screenData.thumbnailURL)
                     }
                     AsyncImage(
+                        keepSpace = true,
                         model =
                             ImageRequest
                                 .Builder(LocalPlatformContext.current)
@@ -763,7 +765,7 @@ internal fun ExpressiveBelowTheFold(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .height(250.dp),
+                                .height(if (NO_ARTWORK) 56.dp else 250.dp),
                     ) {
                         val thumb = state.screenData.songInfoData?.authorThumbnail
                         AsyncImage(

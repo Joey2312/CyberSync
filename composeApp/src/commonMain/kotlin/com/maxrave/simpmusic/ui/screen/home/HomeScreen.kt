@@ -1,5 +1,11 @@
 package com.maxrave.simpmusic.ui.screen.home
 
+import com.maxrave.simpmusic.ui.component.NO_ARTWORK
+import com.maxrave.simpmusic.ui.component.subscribersText
+import com.maxrave.simpmusic.ui.component.HomeTileShelf
+import com.maxrave.simpmusic.ui.component.HomeTileGrid
+import com.maxrave.simpmusic.ui.component.HomeTile
+import com.maxrave.simpmusic.ui.component.HOME_AS_TILES
 import com.maxrave.simpmusic.ui.theme.rememberLoaderHeld
 import com.maxrave.simpmusic.ui.theme.cyber
 import androidx.compose.animation.AnimatedContent
@@ -98,7 +104,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.currentStateAsState
 import androidx.navigation.NavController
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -811,7 +817,7 @@ fun HomeScreen(
                                                     layout(constraints.maxWidth, constraints.maxHeight) { placeable.place(0, 0) }
                                                 }.angledGradientBackground(listOf(animatedColor, pageBackground), 25f),
                                     ) {
-                                        if (headerImage != null && !headerImageFailed) {
+                                        if (headerImage != null && !headerImageFailed && !NO_ARTWORK) {
                                             AsyncImage(
                                                 model =
                                                     ImageRequest
@@ -1325,7 +1331,7 @@ private fun AccountAvatar(
             .size(size)
             .clip(CircleShape.cyber())
             .then(modifier)
-    if (signedIn && !thumbnailUrl.isNullOrBlank()) {
+    if (signedIn && !thumbnailUrl.isNullOrBlank() && !NO_ARTWORK) {
         AsyncImage(
             model =
                 ImageRequest
@@ -1378,6 +1384,10 @@ fun QuickPicks(
     navController: NavController,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
+    if (HOME_AS_TILES) {
+        HomeTileShelf(homeItem, navController, viewModel)
+        return
+    }
     val lazyListState = rememberLazyGridState()
     val snapperFlingBehavior = rememberSnapFlingBehavior(SnapLayoutInfoProvider(lazyGridState = lazyListState, snapPosition = SnapPosition.Start))
     val isPortrait = getScreenSizeInfo().let { it.wDP < it.hDP }
@@ -1592,6 +1602,20 @@ fun ChartData(
                         .fillMaxWidth()
                         .padding(vertical = 10.dp),
             )
+            if (HOME_AS_TILES) {
+                HomeTileGrid(item.playlists) { playlist, modifier ->
+                    HomeTile(
+                        title = playlist.title,
+                        subtitle = playlist.author,
+                        thumbnail = playlist.thumbnails.lastOrNull()?.url,
+                        modifier = modifier,
+                        onClick = {
+                            navController.navigate(PlaylistDestination(playlistId = playlist.id, isYourYouTubePlaylist = false))
+                        },
+                    )
+                }
+                return@forEach
+            }
             val lazyListState = rememberLazyListState()
             val snapperFlingBehavior = rememberSnapFlingBehavior(SnapLayoutInfoProvider(lazyListState = lazyListState))
             LazyRow(
@@ -1627,35 +1651,48 @@ fun ChartData(
                     .fillMaxWidth()
                     .padding(vertical = 10.dp),
         )
-        LazyHorizontalGrid(
-            rows = GridCells.Fixed(3),
-            modifier = Modifier.height(240.dp).mouseDragScroll(lazyListState2, snapperFlingBehavior2),
-            state = lazyListState2,
-            flingBehavior = snapperFlingBehavior2,
-        ) {
-            items(chart.artists.itemArtists.size, key = { index ->
-                val item = chart.artists.itemArtists[index]
-                item.title + item.browseId + index
-            }) {
-                val data = chart.artists.itemArtists[it]
-                ItemArtistChart(
-                    onClick = {
-                        navController.navigate(
-                            ArtistDestination(
-                                channelId = data.browseId,
-                            ),
-                        )
-                    },
-                    data = data,
-                    widthDp = if (isPortrait) gridWidthDp else minOf(gridWidthDp, LandscapeGridItemMaxWidth),
+        if (HOME_AS_TILES) {
+            HomeTileGrid(chart.artists.itemArtists) { artist, modifier ->
+                HomeTile(
+                    title = artist.title,
+                    subtitle = artist.subscribersText(),
+                    thumbnail = artist.thumbnails.lastOrNull()?.url,
+                    modifier = modifier,
+                    rank = artist.rank,
+                    onClick = { navController.navigate(ArtistDestination(channelId = artist.browseId)) },
                 )
             }
+        } else {
+            LazyHorizontalGrid(
+                rows = GridCells.Fixed(3),
+                modifier = Modifier.height(240.dp).mouseDragScroll(lazyListState2, snapperFlingBehavior2),
+                state = lazyListState2,
+                flingBehavior = snapperFlingBehavior2,
+            ) {
+                items(chart.artists.itemArtists.size, key = { index ->
+                    val item = chart.artists.itemArtists[index]
+                    item.title + item.browseId + index
+                }) {
+                    val data = chart.artists.itemArtists[it]
+                    ItemArtistChart(
+                        onClick = {
+                            navController.navigate(
+                                ArtistDestination(
+                                    channelId = data.browseId,
+                                ),
+                            )
+                        },
+                        data = data,
+                        widthDp = if (isPortrait) gridWidthDp else minOf(gridWidthDp, LandscapeGridItemMaxWidth),
+                    )
+                }
+            }
+            HorizontalScrollBar(
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                scrollState = lazyListState2,
+                flingBehavior = snapperFlingBehavior2,
+            )
         }
-        HorizontalScrollBar(
-            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-            scrollState = lazyListState2,
-            flingBehavior = snapperFlingBehavior2,
-        )
         // Ranked podcast shows, laid out exactly like the artist chart above.
         chart.podcasts?.let { podcasts ->
             Text(
@@ -1668,6 +1705,19 @@ fun ChartData(
                         .fillMaxWidth()
                         .padding(vertical = 10.dp),
             )
+            if (HOME_AS_TILES) {
+                HomeTileGrid(podcasts.shows) { show, modifier ->
+                    HomeTile(
+                        title = show.title,
+                        subtitle = show.subscribers,
+                        thumbnail = show.thumbnails.lastOrNull()?.url,
+                        modifier = modifier,
+                        rank = show.rank,
+                        onClick = { navController.navigate(PodcastDestination(podcastId = show.browseId)) },
+                    )
+                }
+                return@let
+            }
             val podcastGridState = rememberLazyGridState()
             val podcastFlingBehavior =
                 rememberSnapFlingBehavior(SnapLayoutInfoProvider(lazyGridState = podcastGridState, snapPosition = SnapPosition.Start))

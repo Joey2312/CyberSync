@@ -2,6 +2,7 @@
 
 package com.maxrave.simpmusic.ui.screen.player.content
 
+import com.maxrave.simpmusic.ui.component.NO_ARTWORK
 import com.maxrave.simpmusic.ui.theme.cyber
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedVisibility
@@ -104,7 +105,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -565,6 +566,7 @@ fun NowPlayingContentSpotify(
                                                     ),
                                         ) {
                                             AsyncImage(
+                                                keepSpace = true,
                                                 model =
                                                     ImageRequest
                                                         .Builder(LocalPlatformContext.current)
@@ -804,6 +806,7 @@ fun NowPlayingContentSpotify(
                                                     ),
                                         ) {
                                             AsyncImage(
+                                                keepSpace = true,
                                                 model =
                                                     ImageRequest
                                                         .Builder(LocalPlatformContext.current)
@@ -1515,7 +1518,7 @@ fun NowPlayingContentSpotify(
                                         modifier =
                                             Modifier
                                                 .fillMaxWidth()
-                                                .height(250.dp),
+                                                .height(if (NO_ARTWORK) 48.dp else 250.dp),
                                     ) {
                                         val thumb = state.screenData.songInfoData?.authorThumbnail
                                         AsyncImage(

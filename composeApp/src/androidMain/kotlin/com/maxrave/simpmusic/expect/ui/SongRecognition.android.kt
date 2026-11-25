@@ -63,7 +63,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import com.maxrave.simpmusic.extension.findActivity
 import com.maxrave.simpmusic.recognition.Recognition
 import com.maxrave.simpmusic.recognition.SongRecognizer

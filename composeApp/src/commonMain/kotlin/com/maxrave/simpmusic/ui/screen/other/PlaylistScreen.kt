@@ -1,5 +1,6 @@
 package com.maxrave.simpmusic.ui.screen.other
 
+import com.maxrave.simpmusic.ui.component.NO_ARTWORK
 import com.maxrave.simpmusic.ui.theme.rememberLoaderHeld
 import com.maxrave.simpmusic.ui.theme.cyber
 import com.maxrave.simpmusic.ui.theme.cyberButton
@@ -80,7 +81,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -344,7 +345,7 @@ fun PlaylistScreen(
     // side-by-side header. Everything else on the page — the palette background, the row
     // dividers, the blurred top bar — is shared by both.
     val screenInfo = getScreenSizeInfo()
-    val isPortrait = screenInfo.wDP < screenInfo.hDP
+    val isPortrait = screenInfo.wDP < screenInfo.hDP && !NO_ARTWORK
     val dominantColor = listColors.firstOrNull() ?: Color.Black
     // Apple Music-style page background from the artwork's dominant tone, held and faded (see UIExt.rememberPaletteColor).
     val mutedPaletteBg = rememberPaletteColor(paletteState.palette)

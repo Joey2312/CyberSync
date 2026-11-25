@@ -1,5 +1,6 @@
 package com.maxrave.simpmusic.ui.component
 
+import com.maxrave.simpmusic.ui.theme.cyberBlock
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.MarqueeAnimationMode
 import androidx.compose.foundation.basicMarquee
@@ -35,7 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -253,8 +254,9 @@ fun LibraryItem(
                                 Box(
                                     Modifier
                                         .padding(horizontal = 10.dp)
-                                        .height(300.dp)
-                                        .width(170.dp)
+                                        .height(if (NO_ARTWORK) 64.dp else 300.dp)
+                                        .width(if (NO_ARTWORK) 290.dp else 170.dp)
+                                        .then(if (NO_ARTWORK) Modifier.cyberBlock() else Modifier)
                                         .clickable {
                                             val firstQueue: Track = song.toTrack()
                                             viewModel.setQueueData(
@@ -297,7 +299,7 @@ fun LibraryItem(
                                         Modifier
                                             .fillMaxWidth()
                                             .padding(horizontal = 12.dp)
-                                            .align(Alignment.BottomStart),
+                                            .align(if (NO_ARTWORK) Alignment.CenterStart else Alignment.BottomStart),
                                     ) {
                                         Text(
                                             text = song.title,

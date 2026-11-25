@@ -1,5 +1,6 @@
 package com.maxrave.simpmusic.ui.screen.home
 
+import com.maxrave.simpmusic.ui.component.NO_ARTWORK
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -50,7 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import com.maxrave.simpmusic.expect.ui.PlatformBackHandler
 import com.maxrave.simpmusic.ui.component.rememberHolderPainter
 import com.maxrave.simpmusic.ui.icon.Add
@@ -298,7 +299,18 @@ private fun PickSlot(
             if (pick == null) {
                 Text("0${index + 1}", style = label.copy(color = label.color.copy(alpha = 0.5f)))
             } else {
-                PickArt(pick, Modifier.fillMaxSize())
+                if (NO_ARTWORK) {
+                    Text(
+                        pick.title,
+                        style = typo().bodySmall.copy(fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface),
+                        maxLines = 4,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 6.dp),
+                    )
+                } else {
+                    PickArt(pick, Modifier.fillMaxSize())
+                }
                 Icon(
                     SimpIcons.Close,
                     contentDescription = removeLabel,
@@ -311,7 +323,7 @@ private fun PickSlot(
                 )
             }
         }
-        Text(
+        if (!NO_ARTWORK) Text(
             pick?.title.orEmpty(),
             style = typo().bodySmall.copy(fontSize = 10.sp),
             maxLines = 1,

@@ -1,5 +1,6 @@
 package com.maxrave.simpmusic.ui.screen.home.analytics
 
+import com.maxrave.simpmusic.ui.component.NO_ARTWORK
 import com.maxrave.simpmusic.ui.theme.cyber
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -63,7 +64,7 @@ import simpmusic.composeapp.generated.resources.analytics_quick_facts
 import simpmusic.composeapp.generated.resources.analytics_vs_previous
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -326,7 +327,7 @@ fun AnalyticsScreen(
                         uiState = uiState,
                         isPortrait = isPortrait,
                         onStep = analyticsViewModel::stepPeriod,
-                        headerHeight = (screenSizeInfo.hDP / 2.5).dp,
+                        headerHeight = if (NO_ARTWORK) 220.dp else (screenSizeInfo.hDP / 2.5).dp,
                         scrimStartY = (screenSizeInfo.hPX / 2.5f) / 2,
                         scrimColor = pageBackground,
                         onBitmap = { bitmap = it },

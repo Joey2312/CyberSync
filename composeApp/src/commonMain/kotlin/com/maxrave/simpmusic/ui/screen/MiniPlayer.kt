@@ -1,5 +1,6 @@
 package com.maxrave.simpmusic.ui.screen
 
+import com.maxrave.simpmusic.ui.component.NO_ARTWORK
 import com.maxrave.simpmusic.ui.theme.cyber
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -107,7 +108,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.navigation.NavController
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -802,7 +803,7 @@ fun MiniPlayer(
                             )
                             // The Apple Music lyrics view's open-in-full button, reachable from the capsule.
                             androidx.compose.animation.AnimatedVisibility(
-                                visible = isArtworkHovered,
+                                visible = isArtworkHovered || NO_ARTWORK,
                                 enter = fadeIn(),
                                 exit = fadeOut(),
                             ) {

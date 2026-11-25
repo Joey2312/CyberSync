@@ -1,5 +1,6 @@
 package com.maxrave.simpmusic.ui.component
 
+import com.maxrave.simpmusic.ui.theme.cyberBlock
 import com.maxrave.simpmusic.ui.theme.cyber
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -74,7 +75,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -303,7 +304,7 @@ fun DesktopSidebar(
                     collapsed = collapsed,
                     onClick = { navController.navigate(item.destination) },
                 ) {
-                    SidebarCover(item)
+                    SidebarCover(item, collapsed)
                 }
             }
             item { Spacer(Modifier.height(8.dp)) }
@@ -726,7 +727,19 @@ private fun SidebarLibraryRow(
 }
 
 @Composable
-private fun SidebarCover(item: LibrarySidebarItem) {
+private fun SidebarCover(
+    item: LibrarySidebarItem,
+    collapsed: Boolean,
+) {
+    if (NO_ARTWORK) {
+        // The collapsed rail has room for nothing but this: the item's initial stands in for its cover.
+        if (collapsed) {
+            Box(Modifier.size(48.dp).cyberBlock(), contentAlignment = Alignment.Center) {
+                Text(item.title.take(1).uppercase(), style = typo().titleSmall, color = MaterialTheme.colorScheme.primary)
+            }
+        }
+        return
+    }
     val shape = if (item.kind == LibrarySidebarKind.ARTIST) CircleShape.cyber() else ArtworkShape
     if (item.thumbnail.isNullOrEmpty()) {
         // A local playlist with no artwork: the gradient its title tile has in the Library grid,

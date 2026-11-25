@@ -1,5 +1,6 @@
 package com.maxrave.simpmusic.ui.screen.library
 
+import com.maxrave.simpmusic.ui.component.NO_ARTWORK
 import com.maxrave.simpmusic.ui.theme.cyber
 import com.maxrave.simpmusic.ui.theme.cyberButton
 import androidx.compose.animation.AnimatedVisibility
@@ -105,7 +106,7 @@ import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -406,7 +407,7 @@ fun LocalPlaylistScreen(
     // side-by-side header. Everything else on the page — the palette background, the row
     // dividers, the blurred top bar — is shared by both.
     val screenInfo = getScreenSizeInfo()
-    val isPortrait = screenInfo.wDP < screenInfo.hDP
+    val isPortrait = screenInfo.wDP < screenInfo.hDP && !NO_ARTWORK
     // Apple Music-style page background. When the playlist has real artwork we pick a vivid
     // swatch from its palette (getColorFromPalette). Many local playlists have NO artwork —
     // AsyncImage shows the title placeholder and onSuccess never fires, so the palette stays

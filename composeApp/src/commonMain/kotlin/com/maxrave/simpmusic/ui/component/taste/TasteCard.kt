@@ -42,7 +42,7 @@ import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import com.maxrave.domain.data.model.taste.TasteException
 import com.maxrave.domain.data.model.taste.TasteProfile
 import com.maxrave.simpmusic.Platform

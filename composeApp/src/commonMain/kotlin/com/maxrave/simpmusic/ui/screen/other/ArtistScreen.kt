@@ -1,5 +1,6 @@
 package com.maxrave.simpmusic.ui.screen.other
 
+import com.maxrave.simpmusic.ui.component.NO_ARTWORK
 import com.maxrave.simpmusic.ui.theme.rememberLoaderHeld
 import com.maxrave.simpmusic.ui.theme.cyber
 import androidx.compose.animation.AnimatedVisibility
@@ -83,7 +84,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -335,7 +336,10 @@ fun ArtistScreen(
                                         Modifier
                                             .fillMaxWidth()
                                             .then(
-                                                if (isPortrait) {
+                                                if (NO_ARTWORK) {
+                                                    // Nothing to frame: just room for the name and the buttons over it.
+                                                    Modifier.height(240.dp)
+                                                } else if (isPortrait) {
                                                     Modifier.aspectRatio(1f)
                                                 } else {
                                                     // The banner's own shape, so it is shown whole instead of
@@ -363,7 +367,7 @@ fun ArtistScreen(
                                             )
                                             // The artist's animated artwork plays AS the background when
                                             // there is one; otherwise the static artwork above shows.
-                                            headerVideoUrl?.let { videoUrl ->
+                                            headerVideoUrl?.takeUnless { NO_ARTWORK }?.let { videoUrl ->
                                                 // cropToBounds center scale-to-covers it into the header
                                                 // frame (ContentScale.Crop): true video aspect ratio, no
                                                 // stretch, overflow clipped — which is what absorbs the

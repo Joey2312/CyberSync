@@ -31,7 +31,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import com.maxrave.simpmusic.extension.angledGradientBackground
 import com.maxrave.simpmusic.ui.theme.ArtworkShape
 import com.maxrave.simpmusic.ui.theme.typo
@@ -155,7 +155,7 @@ private fun CyberMoodCategoryCard(
                 .hoverable(interaction)
                 .clickable(interactionSource = interaction, indication = androidx.compose.material3.ripple(), onClick = onClick),
     ) {
-        if (artworkUrl != null) {
+        if (artworkUrl != null && !NO_ARTWORK) {
             Box(Modifier.align(Alignment.CenterEnd).fillMaxHeight().aspectRatio(1f)) {
                 AsyncImage(
                     model = artworkUrl,
@@ -194,7 +194,7 @@ private fun CyberMoodCategoryCard(
             modifier =
                 Modifier
                     .align(Alignment.BottomStart)
-                    .padding(start = 16.dp, bottom = 14.dp, end = 72.dp),
+                    .padding(start = 16.dp, bottom = 14.dp, end = if (NO_ARTWORK) 10.dp else 72.dp),
         )
     }
 }

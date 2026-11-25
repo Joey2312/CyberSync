@@ -24,7 +24,7 @@ const val MAX_HOME_PICKS = 5
 
 private const val HOME_PICKS_KEY = "cybersync_home_picks"
 private const val SHELF_SIZE = 20
-private const val LOOKUP_TIMEOUT_MS = 6_000L
+private const val LOOKUP_TIMEOUT_MS = 30_000L
 private val json = Json { ignoreUnknownKeys = true }
 
 /** One chosen artist ([id] is the channel) or song ([id] is the video), with enough to draw it offline. */

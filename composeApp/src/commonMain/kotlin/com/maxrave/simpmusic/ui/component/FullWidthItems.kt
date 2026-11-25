@@ -58,7 +58,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import com.maxrave.simpmusic.ui.component.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -274,7 +274,7 @@ fun SongFullWidthItems(
                         Spacer(modifier = Modifier.width(12.dp))
                     }
                 }
-                Box(
+                if (!NO_ARTWORK || isPlaying || index != null) Box(
                     modifier = Modifier.size(48.dp),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -441,7 +441,7 @@ fun SuggestItems(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(modifier = Modifier.size(40.dp)) {
+            if (!NO_ARTWORK || isPlaying) Box(modifier = Modifier.size(40.dp)) {
                 Crossfade(isPlaying) {
                     if (it) {
                         AudioPlayingIndicator(
@@ -607,7 +607,7 @@ fun PlaylistFullWidthItems(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Spacer(modifier = Modifier.width(8.dp))
-            Box(modifier = Modifier.size(48.dp)) {
+            if (!NO_ARTWORK) Box(modifier = Modifier.size(48.dp)) {
                 AsyncImage(
                     model =
                         ImageRequest
@@ -730,7 +730,7 @@ fun ArtistFullWidthItems(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Spacer(modifier = Modifier.width(8.dp))
-            Box(modifier = Modifier.size(48.dp)) {
+            if (!NO_ARTWORK) Box(modifier = Modifier.size(48.dp)) {
                 AsyncImage(
                     model =
                         ImageRequest
