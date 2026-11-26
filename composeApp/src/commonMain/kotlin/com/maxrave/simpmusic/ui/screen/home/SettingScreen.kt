@@ -1,5 +1,9 @@
 package com.maxrave.simpmusic.ui.screen.home
 
+import com.maxrave.simpmusic.ui.icon.Search
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.CompositionLocalProvider
+import com.maxrave.simpmusic.ui.component.LocalSettingsQuery
 import simpmusic.composeapp.generated.resources.customize_home_summary
 import simpmusic.composeapp.generated.resources.customize_home_empty
 import simpmusic.composeapp.generated.resources.customize_home
@@ -586,6 +590,7 @@ fun SettingScreen(
     val autoCheckUpdate by viewModel.autoCheckUpdate.collectAsStateWithLifecycle()
     val updateRepo by sharedViewModel.updateRepo.collectAsStateWithLifecycle()
     val homePicks by sharedViewModel.homePicks.collectAsStateWithLifecycle()
+    val focusMode by sharedViewModel.focusMode.collectAsStateWithLifecycle()
     val aiProvider by viewModel.aiProvider.collectAsStateWithLifecycle()
     val isHasApiKey by viewModel.isHasApiKey.collectAsStateWithLifecycle()
     val useAITranslation by viewModel.useAITranslation.collectAsStateWithLifecycle()
@@ -707,6 +712,8 @@ fun SettingScreen(
                     }
             },
     )
+    var settingsQuery by rememberSaveable { mutableStateOf("") }
+    CompositionLocalProvider(LocalSettingsQuery provides settingsQuery.trim()) {
     LazyColumn(
         state = settingListState,
         contentPadding = innerPadding,
@@ -735,6 +742,26 @@ fun SettingScreen(
                 )
                 // Above every section, and inside item 0 rather than an item of its own, for the
                 // glow reason above.
+                OutlinedTextField(
+                    value = settingsQuery,
+                    onValueChange = { settingsQuery = it },
+                    singleLine = true,
+                    placeholder = { Text("Search settings", style = typo().bodyMedium) },
+                    leadingIcon = { Icon(SimpIcons.Search, contentDescription = null) },
+                    trailingIcon =
+                        if (settingsQuery.isEmpty()) {
+                            null
+                        } else {
+                            {
+                                IconButton(onClick = { settingsQuery = "" }) {
+                                    Icon(SimpIcons.Close, contentDescription = "Clear search")
+                                }
+                            }
+                        },
+                    textStyle = typo().bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
+                    shape = MaterialTheme.shapes.small,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
                 SettingGroup(
                     title = stringResource(Res.string.login_sync_section),
                     modifier = Modifier.onSizeChanged { devicesGroupHeightPx = it.height },
@@ -781,6 +808,11 @@ fun SettingScreen(
                     )
                 }
                 SettingGroup(title = stringResource(Res.string.user_interface)) {
+                    SettingItem(
+                        title = "Focus mode",
+                        subtitle = "Apple-style look with no animations, glass or effects",
+                        switch = (focusMode to { sharedViewModel.setFocusMode(it) }),
+                    )
                     SettingItem(
                         title = stringResource(Res.string.customize_home),
                         subtitle =
@@ -2911,6 +2943,7 @@ fun SettingScreen(
         item(key = "end") {
             EndOfPage()
         }
+    }
     }
     VerticalScrollBar(
         scrollState = settingListState,

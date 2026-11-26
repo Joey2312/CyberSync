@@ -386,6 +386,8 @@ fun Modifier.livingCircuit(
     /** Measure [chipX] from the right edge instead (the phone bar's play button sits at the end). */
     fromEnd: Boolean = false,
 ): Modifier {
+    if (CyberLook.focus) return this
+
     val energy by androidx.compose.animation.core.animateFloatAsState(
         if (active) 1f else 0f,
         androidx.compose.animation.core.tween(600),

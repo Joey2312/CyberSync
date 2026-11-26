@@ -1,5 +1,9 @@
 package com.maxrave.simpmusic.ui.theme
 
+import simpmusic.composeapp.generated.resources.inter_bold
+import simpmusic.composeapp.generated.resources.inter_semibold
+import simpmusic.composeapp.generated.resources.inter_medium
+import simpmusic.composeapp.generated.resources.inter_regular
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
@@ -25,21 +29,35 @@ import simpmusic.composeapp.generated.resources.space_mono_regular
 /** Body text: readable sans. */
 @Composable
 fun fontFamily(): FontFamily =
+    if (CyberLook.focus) {
+        interFamily()
+    } else {
+        FontFamily(
+            Font(Res.font.poppins_medium, FontWeight.Normal, FontStyle.Normal),
+        )
+    }
+
+/** Focus mode's face: Inter, the free stand-in for Apple's SF Pro. SIL OFL (licenses/Inter-OFL.txt). */
+@Composable
+private fun interFamily(): FontFamily =
     FontFamily(
-        Font(Res.font.poppins_medium, FontWeight.Normal, FontStyle.Normal),
+        Font(Res.font.inter_regular, FontWeight.Normal, FontStyle.Normal),
+        Font(Res.font.inter_medium, FontWeight.Medium, FontStyle.Normal),
+        Font(Res.font.inter_semibold, FontWeight.SemiBold, FontStyle.Normal),
+        Font(Res.font.inter_bold, FontWeight.Bold, FontStyle.Normal),
     )
 
 /** CyberSync headings: angular display face. Chakra Petch, SIL OFL (licenses/ChakraPetch-OFL.txt). */
 @Composable
 fun displayFontFamily(): FontFamily =
-    FontFamily(
+    if (CyberLook.focus) interFamily() else FontFamily(
         Font(Res.font.chakra_petch_semibold, FontWeight.SemiBold, FontStyle.Normal),
         Font(Res.font.chakra_petch_bold, FontWeight.Bold, FontStyle.Normal),
     )
 
 /** Small technical readouts (index numbers, timestamps, status). */
 @Composable
-fun monoFontFamily(): FontFamily = FontFamily(Font(Res.font.space_mono_regular, FontWeight.Normal, FontStyle.Normal))
+fun monoFontFamily(): FontFamily = if (CyberLook.focus) interFamily() else FontFamily(Font(Res.font.space_mono_regular, FontWeight.Normal, FontStyle.Normal))
 
 /**
  * When true, [typo] keeps the original always-light text colors (pure white titles, #A8A8A8 body)

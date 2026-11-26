@@ -1,5 +1,8 @@
 package com.maxrave.simpmusic.ui.theme
 
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
@@ -160,11 +163,13 @@ fun AppTheme(
     themeColorSource: String = DataStoreManager.THEME_COLOR_DEFAULT,
     customThemeColor: Color? = null,
     liquidGlassEnabled: Boolean = true,
+    focusMode: Boolean = false,
     content:
         @Composable()
         () -> Unit,
 ) {
-    val isDark = isDarkTheme(themeMode)
+    // Focus mode is Apple's default light look whatever the theme setting says.
+    val isDark = isDarkTheme(themeMode) && !focusMode
     // CyberSync: the cyberpunk palette is the default look; custom/wallpaper colours still win.
     val neon = themeColorSource == DataStoreManager.THEME_COLOR_DEFAULT
     val wallpaperScheme =
@@ -182,7 +187,8 @@ fun AppTheme(
     // Light pins the neutrals to a neutral-grey ramp (the seed otherwise tints them warm/cream);
     // dark keeps the generated neutrals as they are.
     val colorScheme =
-        wallpaperScheme
+        (if (focusMode) AppleLightScheme else null)
+            ?: wallpaperScheme
             ?: rememberDynamicColorScheme(
                 seedColor = seedColor,
                 isDark = isDark,
@@ -204,8 +210,9 @@ fun AppTheme(
         }
     SystemBarAppearanceEffect(isDark)
     CyberLook.on = isDark
+    CyberLook.focus = focusMode
     MaterialExpressiveTheme(
-        shapes = CyberShapes,
+        shapes = if (focusMode) AppleShapes else CyberShapes,
         colorScheme = colorScheme,
         content = {
             CompositionLocalProvider(
@@ -214,7 +221,7 @@ fun AppTheme(
                 LocalAppColors provides if (isDark) DarkAppColors else LightAppColors,
                 LocalIsDarkTheme provides isDark,
                 LocalForcedDarkColorScheme provides forcedDarkScheme,
-                LocalLiquidGlassEnabled provides liquidGlassEnabled,
+                LocalLiquidGlassEnabled provides (liquidGlassEnabled && !focusMode),
                 content = content,
             )
         },
@@ -272,14 +279,17 @@ private val SoftRippleConfiguration =
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ForceDarkContent(content: @Composable () -> Unit) {
-    val darkScheme = LocalForcedDarkColorScheme.current ?: MaterialTheme.colorScheme
+    // Focus mode's dark pages are Apple's dark look, not the cyberpunk one.
+    val focus = CyberLook.focus
+    val darkScheme = if (focus) AppleDarkScheme else LocalForcedDarkColorScheme.current ?: MaterialTheme.colorScheme
     MaterialExpressiveTheme(
-        shapes = CyberShapes,
+        shapes = if (focus) AppleShapes else CyberShapes,
         colorScheme = darkScheme,
         content = {
             CompositionLocalProvider(
                 LocalForceDarkText provides true,
-                LocalIsDarkTheme provides true,
+                // The cyberpunk styling keys off this; Focus mode keeps it out of the dark pages too.
+                LocalIsDarkTheme provides !focus,
                 LocalContentColor provides darkScheme.onSurfaceVariant,
                 LocalAppColors provides DarkAppColors,
                 content = content,
@@ -303,3 +313,73 @@ fun isDarkTheme(themeMode: String): Boolean =
         DataStoreManager.THEME_MODE_SYSTEM -> isSystemInDarkTheme()
         else -> true
     }
+
+/** iOS system colours (light): white pages, grouped grey, Apple Music's red as the accent. */
+private val AppleLightScheme =
+    lightColorScheme(
+        primary = Color(0xFFFA243C),
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFFFE4E8),
+        onPrimaryContainer = Color(0xFF5C0010),
+        secondary = Color(0xFF8E8E93),
+        onSecondary = Color.White,
+        secondaryContainer = Color(0xFFE5E5EA),
+        onSecondaryContainer = Color.Black,
+        tertiary = Color(0xFF007AFF),
+        onTertiary = Color.White,
+        background = Color.White,
+        onBackground = Color.Black,
+        surface = Color.White,
+        onSurface = Color.Black,
+        surfaceVariant = Color(0xFFF2F2F7),
+        onSurfaceVariant = Color(0xFF8A8A8E),
+        surfaceContainerLowest = Color.White,
+        surfaceContainerLow = Color(0xFFF9F9FB),
+        surfaceContainer = Color(0xFFF2F2F7),
+        surfaceContainerHigh = Color(0xFFEBEBF0),
+        surfaceContainerHighest = Color(0xFFE5E5EA),
+        outline = Color(0xFFC6C6C8),
+        outlineVariant = Color(0xFFE5E5EA),
+        error = Color(0xFFFF3B30),
+        onError = Color.White,
+    )
+
+/** Apple's continuous-looking rounding: 10 on rows and fields, 12 on cards, 14 on sheets. */
+private val AppleShapes =
+    Shapes(
+        extraSmall = RoundedCornerShape(6.dp),
+        small = RoundedCornerShape(10.dp),
+        medium = RoundedCornerShape(12.dp),
+        large = RoundedCornerShape(14.dp),
+        extraLarge = RoundedCornerShape(20.dp),
+    )
+
+/** iOS system colours (dark), for the pages that always draw dark. */
+private val AppleDarkScheme =
+    darkColorScheme(
+        primary = Color(0xFFFF375F),
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFF4A0A16),
+        onPrimaryContainer = Color(0xFFFFD9DF),
+        secondary = Color(0xFF8E8E93),
+        onSecondary = Color.Black,
+        secondaryContainer = Color(0xFF2C2C2E),
+        onSecondaryContainer = Color.White,
+        tertiary = Color(0xFF0A84FF),
+        onTertiary = Color.White,
+        background = Color.Black,
+        onBackground = Color.White,
+        surface = Color.Black,
+        onSurface = Color.White,
+        surfaceVariant = Color(0xFF1C1C1E),
+        onSurfaceVariant = Color(0xFF98989F),
+        surfaceContainerLowest = Color.Black,
+        surfaceContainerLow = Color(0xFF111113),
+        surfaceContainer = Color(0xFF1C1C1E),
+        surfaceContainerHigh = Color(0xFF242426),
+        surfaceContainerHighest = Color(0xFF2C2C2E),
+        outline = Color(0xFF38383A),
+        outlineVariant = Color(0xFF2C2C2E),
+        error = Color(0xFFFF453A),
+        onError = Color.White,
+    )

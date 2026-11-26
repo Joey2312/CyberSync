@@ -166,7 +166,10 @@ fun App(
     val intent by viewModel.intent.collectAsStateWithLifecycle()
     val showNotificationPermissionDialog by viewModel.showNotificationPermissionDialog.collectAsStateWithLifecycle()
 
-    val isLiquidGlassEnabled by viewModel.getEnableLiquidGlass().collectAsStateWithLifecycle(DataStoreManager.FALSE)
+    val focusMode by viewModel.focusMode.collectAsStateWithLifecycle()
+    // Focus mode draws no glass anywhere, whatever the glass setting says.
+    val storedLiquidGlass by viewModel.getEnableLiquidGlass().collectAsStateWithLifecycle(DataStoreManager.FALSE)
+    val isLiquidGlassEnabled = if (focusMode) DataStoreManager.FALSE else storedLiquidGlass
     // Analytics only makes sense with local tracking on, so its tab follows that setting.
     val isLocalTrackingEnabled by viewModel.getLocalTrackingEnabled().collectAsStateWithLifecycle(DataStoreManager.FALSE)
     val showAnalyticsTab = isLocalTrackingEnabled == TRUE
@@ -530,6 +533,7 @@ fun App(
         customThemeColor = parseThemeColorHex(customThemeColorHex),
         // The setting governs Desktop too, the same as Android: off, every glass surface draws flat.
         liquidGlassEnabled = isLiquidGlassEnabled == TRUE,
+        focusMode = focusMode,
     ) {
         if (!isOfficialBuild) {
             UnofficialBuildScreen()

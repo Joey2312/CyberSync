@@ -1,5 +1,8 @@
 package com.maxrave.simpmusic.ui.navigation.graph
 
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.EnterTransition
+import com.maxrave.simpmusic.ui.theme.CyberLook
 import com.maxrave.simpmusic.ui.screen.home.HomePicksScreen
 import com.maxrave.simpmusic.ui.navigation.destination.home.HomePicksDestination
 import androidx.navigation.toRoute
@@ -46,16 +49,16 @@ fun AppNavigationGraph(
         navController,
         startDestination = startDestination,
         enterTransition = {
-            fadeIn() + slideInHorizontally { -it }
+            if (CyberLook.focus) EnterTransition.None else fadeIn() + slideInHorizontally { -it }
         },
         exitTransition = {
-            fadeOut() + slideOutHorizontally { it }
+            if (CyberLook.focus) ExitTransition.None else fadeOut() + slideOutHorizontally { it }
         },
         popEnterTransition = {
-            fadeIn() + slideInHorizontally { -it }
+            if (CyberLook.focus) EnterTransition.None else fadeIn() + slideInHorizontally { -it }
         },
         popExitTransition = {
-            fadeOut() + slideOutHorizontally { it }
+            if (CyberLook.focus) ExitTransition.None else fadeOut() + slideOutHorizontally { it }
         },
     ) {
         // Bottom bar destinations

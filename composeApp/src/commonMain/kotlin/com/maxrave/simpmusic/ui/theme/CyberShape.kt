@@ -13,6 +13,10 @@ import androidx.compose.ui.unit.LayoutDirection
 object CyberLook {
     @kotlin.concurrent.Volatile
     var on: Boolean = true
+
+    /** Focus mode: the plain Apple-style look, with the app's own motion and effects switched off. */
+    @kotlin.concurrent.Volatile
+    var focus: Boolean = false
 }
 
 /**

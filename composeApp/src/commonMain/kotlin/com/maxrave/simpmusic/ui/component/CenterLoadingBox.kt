@@ -1,5 +1,6 @@
 package com.maxrave.simpmusic.ui.component
 
+import simpmusic.composeapp.generated.resources.loading
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -24,6 +25,18 @@ import kotlinx.coroutines.isActive
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CenterLoadingBox(modifier: Modifier) {
+    if (com.maxrave.simpmusic.ui.theme.CyberLook.focus) {
+        // Focus mode: a still word, no spinner.
+        Box(modifier = modifier) {
+            androidx.compose.material3.Text(
+                org.jetbrains.compose.resources.stringResource(simpmusic.composeapp.generated.resources.Res.string.loading),
+                style = com.maxrave.simpmusic.ui.theme.typo().bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.align(Alignment.Center),
+            )
+        }
+        return
+    }
     if (com.maxrave.simpmusic.ui.theme.LocalIsDarkTheme.current) {
         Box(modifier = modifier) {
             com.maxrave.simpmusic.ui.theme.CyberLoader(Modifier.align(Alignment.Center))

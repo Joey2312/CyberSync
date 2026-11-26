@@ -697,7 +697,7 @@ fun Palette?.toImmersiveBackground(): Color {
 fun rememberPaletteColor(
     palette: Palette?,
     // With no artwork there is never a palette: the pages sit on the app's own panel colour instead.
-    fallback: Color = if (NO_ARTWORK) desktopPanelDark else Color.Black,
+    fallback: Color = if (com.maxrave.simpmusic.ui.theme.CyberLook.focus) Color.Black else if (NO_ARTWORK) desktopPanelDark else Color.Black,
     pick: (Palette) -> Color = { it.toImmersiveBackground() },
 ): Color {
     var held by rememberSaveable { mutableStateOf<Int?>(null) }

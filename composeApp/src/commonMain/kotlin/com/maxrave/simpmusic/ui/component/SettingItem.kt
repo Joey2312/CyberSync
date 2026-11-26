@@ -1,5 +1,13 @@
 package com.maxrave.simpmusic.ui.component
 
+import androidx.compose.ui.layout.layout
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.foundation.border
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.TextStyle
@@ -52,6 +60,14 @@ fun SettingItem(
     switch: Pair<Boolean, ((Boolean) -> Unit)>? = null,
     otherView: @Composable (() -> Unit)? = null,
 ) {
+    val query = LocalSettingsQuery.current
+    if (query.isNotBlank() && !LocalGroupTitleMatches.current && !title.contains(query, true) && !subtitle.contains(query, true)) return
+    LocalGroupMatches.current?.let { group ->
+        DisposableEffect(group) {
+            group.count++
+            onDispose { group.count-- }
+        }
+    }
     // isEnable only greys the row out; it deliberately writes nothing.
     //
     // There used to be an onDisable callback fired from a LaunchedEffect(isEnable) here, to clear a
@@ -160,7 +176,18 @@ fun SettingGroup(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val cardColor = settingGroupColor()
-    Column(modifier.fillMaxWidth().padding(top = 24.dp)) {
+    val query = LocalSettingsQuery.current
+    val titleMatches = query.isNotBlank() && title.contains(query, true)
+    val matches = remember { GroupMatches() }
+    // Still composed while hidden, so its rows can report a match and bring it back.
+    val hidden = query.isNotBlank() && !titleMatches && matches.count == 0
+    CompositionLocalProvider(LocalGroupMatches provides matches, LocalGroupTitleMatches provides titleMatches) {
+    Column(
+        modifier
+            .then(if (hidden) Modifier.layout { measurable, constraints -> measurable.measure(constraints); layout(0, 0) {} } else Modifier)
+            .fillMaxWidth()
+            .padding(top = 24.dp),
+    ) {
         val cyber = LocalIsDarkTheme.current
         Text(
             text = (if (cyber) "// " else "") + title.toUpperCase(Locale.current),
@@ -193,6 +220,7 @@ fun SettingGroup(
             }
         }
     }
+    }
 }
 
 // One step off the page the card sits on. Android's page is the theme background (black, or
@@ -209,3 +237,16 @@ private fun settingGroupColor(): Color =
 private val SettingGroupShape = RoundedCornerShape(20.dp).cyber()
 private val SettingRowPaddingHorizontal = 16.dp
 private val SettingDividerThickness = 0.5.dp
+
+/** What the Settings search box holds; blank shows every row. */
+val LocalSettingsQuery = compositionLocalOf { "" }
+
+/** How many rows of a group match the search, so a group with none can step out of the list. */
+private class GroupMatches {
+    var count by mutableIntStateOf(0)
+}
+
+private val LocalGroupMatches = compositionLocalOf<GroupMatches?> { null }
+
+/** A group whose own name matches shows all of its rows. */
+private val LocalGroupTitleMatches = compositionLocalOf { false }

@@ -2201,6 +2201,14 @@ class SharedViewModel(
     val homePicksAsked: StateFlow<Boolean?> =
         dataStoreManager.homePicks.map { it != null }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
+    /** Focus mode: the plain Apple-style look with no animations or effects. */
+    val focusMode: StateFlow<Boolean> =
+        dataStoreManager.getString(FOCUS_MODE_KEY).map { it == TRUE }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    fun setFocusMode(on: Boolean) {
+        viewModelScope.launch { dataStoreManager.putString(FOCUS_MODE_KEY, if (on) TRUE else FALSE) }
+    }
+
     private val _updateDownload = MutableStateFlow<Float?>(null)
 
     /** Progress 0..1 of the in-app update download; null while none is running. */
@@ -2539,6 +2547,7 @@ sealed class VoteState {
 private fun String.isCanvasVideoUrl(): Boolean = contains(".mp4") || contains(".m3u8")
 
 private const val UPDATE_REPO_KEY = "cybersync_update_repo"
+private const val FOCUS_MODE_KEY = "cybersync_focus_mode"
 
 // Where CyberSync releases live; Settings > Update source overrides it, clearing it falls back here.
 private const val DEFAULT_UPDATE_REPO = "Joey2312/CyberSync"
