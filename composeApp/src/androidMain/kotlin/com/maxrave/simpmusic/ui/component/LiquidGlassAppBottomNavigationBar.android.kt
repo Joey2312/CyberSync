@@ -23,6 +23,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -242,6 +243,10 @@ actual fun LiquidGlassAppBottomNavigationBar(
             } else {
                 flatTabBarWidth(barTabs.size, capsuleBudget)
             }
+        // A new ConstraintLayout per material. Its animated measurer keeps the previous children,
+        // so swapping glass and flat inside one instance measured a removed node and crashed at
+        // launch with Focus mode on: glass reads off, on (stored setting) then off (Focus) in a row.
+        key(liquidGlass) {
         ConstraintLayout(
             constraintSet = constraintSet,
             modifier = Modifier.fillMaxWidth(),
@@ -353,6 +358,7 @@ actual fun LiquidGlassAppBottomNavigationBar(
                     viewModel.isServiceRunning = false
                 },
             )
+        }
         }
     }
 }

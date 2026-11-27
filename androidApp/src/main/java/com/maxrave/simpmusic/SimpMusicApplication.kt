@@ -109,6 +109,7 @@ class SimpMusicApplication :
             .trackActivities(true) // default: false
             .minTimeBetweenCrashesMs(2000) // default: 3000 //default: bug image
             .restartActivity(MainActivity::class.java) // default: null (your app's launch activity)
+            .errorActivity(CrashActivity::class.java)
             .apply()
 
         @SuppressLint("DiscouragedPrivateApi")

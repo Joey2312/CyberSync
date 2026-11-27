@@ -84,6 +84,12 @@
         tools:targetApi="tiramisu">
 
         <activity
+            android:name=".CrashActivity"
+            android:exported="false"
+            android:process=":error_activity"
+            android:theme="@android:style/Theme.Material.NoActionBar" />
+
+        <activity
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|screenSize|screenLayout|smallestScreenSize"
             android:exported="true"

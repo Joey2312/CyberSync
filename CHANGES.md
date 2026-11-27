@@ -11,6 +11,12 @@ Based on:
 Left out of this repository because no build uses them: the store listing, screenshots, changelogs, GitHub workflows and
 editor configuration of the original project.
 
+## 2.6.5 (27 November 2026)
+
+- Fixed a crash at launch on Android when liquid glass was switched on, made likely by Focus mode turning glass off a moment after it loaded
+- New crash screen on Android with a "Reset settings and restart" button beside Restart, Copy error details and Close. Resetting clears the settings only; the library, downloads and playlists stay
+- The liquid glass switch is greyed out while Focus mode is on, since Focus mode draws no glass
+
 ## 2.6.4 (27 November 2026)
 
 - Focus mode, a switch in Settings: a plain light look with system-style lists and rounded shapes, the Inter font, and no glass, cyberpunk effects, page transitions or animated loader

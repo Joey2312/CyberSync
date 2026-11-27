@@ -1047,6 +1047,8 @@ fun SettingScreen(
                         subtitle = stringResource(Res.string.enable_liquid_glass_effect_description),
                         smallSubtitle = true,
                         switch = (enableLiquidGlass to { viewModel.setEnableLiquidGlass(it) }),
+                        // Focus mode draws no glass, so the switch would do nothing there.
+                        isEnable = !focusMode,
                     )
                 }
             }

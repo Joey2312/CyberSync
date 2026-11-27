@@ -2205,6 +2205,15 @@ class SharedViewModel(
     val focusMode: StateFlow<Boolean> =
         dataStoreManager.getString(FOCUS_MODE_KEY).map { it == TRUE }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    /**
+     * The glass setting as the app draws it: always off in Focus mode. combine waits for both
+     * stored values, so glass never shows for a moment before Focus mode loads.
+     */
+    val liquidGlassInEffect: Flow<String> =
+        combine(dataStoreManager.getString(FOCUS_MODE_KEY), dataStoreManager.enableLiquidGlass) { focus, glass ->
+            if (focus == TRUE) FALSE else glass
+        }.distinctUntilChanged()
+
     fun setFocusMode(on: Boolean) {
         viewModelScope.launch { dataStoreManager.putString(FOCUS_MODE_KEY, if (on) TRUE else FALSE) }
     }

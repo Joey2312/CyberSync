@@ -168,8 +168,7 @@ fun App(
 
     val focusMode by viewModel.focusMode.collectAsStateWithLifecycle()
     // Focus mode draws no glass anywhere, whatever the glass setting says.
-    val storedLiquidGlass by viewModel.getEnableLiquidGlass().collectAsStateWithLifecycle(DataStoreManager.FALSE)
-    val isLiquidGlassEnabled = if (focusMode) DataStoreManager.FALSE else storedLiquidGlass
+    val isLiquidGlassEnabled by viewModel.liquidGlassInEffect.collectAsStateWithLifecycle(DataStoreManager.FALSE)
     // Analytics only makes sense with local tracking on, so its tab follows that setting.
     val isLocalTrackingEnabled by viewModel.getLocalTrackingEnabled().collectAsStateWithLifecycle(DataStoreManager.FALSE)
     val showAnalyticsTab = isLocalTrackingEnabled == TRUE
