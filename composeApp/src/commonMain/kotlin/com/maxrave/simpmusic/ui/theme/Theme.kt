@@ -168,8 +168,11 @@ fun AppTheme(
         @Composable()
         () -> Unit,
 ) {
-    // Focus mode is Apple's default light look whatever the theme setting says.
-    val isDark = isDarkTheme(themeMode) && !focusMode
+    // Focus mode follows the theme setting (dark by default) in Apple's colours. `isDark` stays the
+    // "cyberpunk styling" flag, so it is off for the whole of Focus mode, dark or light.
+    val themeDark = isDarkTheme(themeMode)
+    val isDark = themeDark && !focusMode
+    val focusDark = focusMode && themeDark
     // CyberSync: the cyberpunk palette is the default look; custom/wallpaper colours still win.
     val neon = themeColorSource == DataStoreManager.THEME_COLOR_DEFAULT
     val wallpaperScheme =
@@ -187,7 +190,7 @@ fun AppTheme(
     // Light pins the neutrals to a neutral-grey ramp (the seed otherwise tints them warm/cream);
     // dark keeps the generated neutrals as they are.
     val colorScheme =
-        (if (focusMode) AppleLightScheme else null)
+        (if (focusMode) (if (focusDark) AppleDarkScheme else AppleLightScheme) else null)
             ?: wallpaperScheme
             ?: rememberDynamicColorScheme(
                 seedColor = seedColor,
@@ -208,7 +211,7 @@ fun AppTheme(
                 modifyColorScheme = { cs -> if (neon) cs.withCyberpunkDark() else cs },
             )
         }
-    SystemBarAppearanceEffect(isDark)
+    SystemBarAppearanceEffect(isDark || focusDark)
     CyberLook.on = isDark
     CyberLook.focus = focusMode
     MaterialExpressiveTheme(
@@ -218,7 +221,7 @@ fun AppTheme(
             CompositionLocalProvider(
                 LocalRippleConfiguration provides SoftRippleConfiguration,
                 LocalContentColor provides colorScheme.onSurfaceVariant,
-                LocalAppColors provides if (isDark) DarkAppColors else LightAppColors,
+                LocalAppColors provides if (isDark || focusDark) DarkAppColors else LightAppColors,
                 LocalIsDarkTheme provides isDark,
                 LocalForcedDarkColorScheme provides forcedDarkScheme,
                 LocalLiquidGlassEnabled provides (liquidGlassEnabled && !focusMode),

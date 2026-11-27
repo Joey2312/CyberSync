@@ -11,6 +11,11 @@ Based on:
 Left out of this repository because no build uses them: the store listing, screenshots, changelogs, GitHub workflows and
 editor configuration of the original project.
 
+## 2.6.6 (27 November 2026)
+
+- Focus mode is dark by default: Apple's dark colours (black pages, system grey surfaces, red accent). It follows the Theme setting, so choosing Light there gives the light look
+- On Windows the shell around the page (window, panels, frame) loses its neon colours in Focus mode
+
 ## 2.6.5 (27 November 2026)
 
 - Fixed a crash at launch on Android when liquid glass was switched on, made likely by Focus mode turning glass off a moment after it loaded

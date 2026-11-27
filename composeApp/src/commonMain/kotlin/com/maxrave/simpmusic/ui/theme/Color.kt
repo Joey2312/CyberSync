@@ -33,9 +33,10 @@ val blackMoreOverlay = Color(0x8f242424)
 // step one shade back towards the middle so they read as raised. The light panel is not here —
 // it comes from colorScheme.surfaceContainer, which already sits at the right distance.
 
-val desktopWindowDark = Color(0xFF05010D)
+// Focus mode swaps the neon-tinted shell colours for Apple's plain black and system grey.
+val desktopWindowDark: Color get() = if (CyberLook.focus) Color.Black else Color(0xFF05010D)
 val desktopWindowLight = Color(0xFFFFFFFF)
-val desktopPanelDark = Color(0xFF0E0820)
+val desktopPanelDark: Color get() = if (CyberLook.focus) Color(0xFF1C1C1E) else Color(0xFF0E0820)
 
 // ===== Desktop window controls =====
 // The macOS traffic lights. Fixed by convention rather than by theme — users read these by

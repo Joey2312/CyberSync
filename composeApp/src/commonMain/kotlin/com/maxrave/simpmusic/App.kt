@@ -758,7 +758,7 @@ fun App(
                                         .weight(1f)
                                         .then(
                                             if (isDesktopShell) {
-                                                if (isLightScheme) {
+                                                if (isLightScheme || focusMode) {
                                                     Modifier
                                                         .padding(8.dp)
                                                         .clip(RoundedCornerShape(12.dp).cyber())
